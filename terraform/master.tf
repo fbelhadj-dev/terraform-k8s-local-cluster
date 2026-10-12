@@ -32,6 +32,7 @@ resource "libvirt_cloudinit_disk" "master" {
     master_root_password = var.master_root_password
     ssh_user             = var.ssh_master_user
     ssh_public_key       = file(pathexpand(var.ssh_public_key_path))
+    k8s_version          = var.k8s_version
   })
 }
 
