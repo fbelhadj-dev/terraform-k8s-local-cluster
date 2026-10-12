@@ -3,7 +3,7 @@ resource "libvirt_pool" "default" {
   type = "dir"
 
   target = {
-    path = var.base_image_path
+    path = var.libvirt_default_pool_dir
   }
 
   create = {
@@ -25,7 +25,7 @@ resource "libvirt_volume" "base" {
 
   create = {
     content = {
-      url = var.base_image_download_link
+      url = var.base_image_path
     }
   }
 }
