@@ -58,3 +58,10 @@ variable "master_root_password" {
   type        = string
   sensitive   = true
 }
+
+# k8s
+
+variable "k8s_version" {
+  type    = string
+  default = "v1.37"
+}

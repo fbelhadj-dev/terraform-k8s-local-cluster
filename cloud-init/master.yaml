@@ -22,3 +22,22 @@ write_files:
       if [ -n "$BASH_VERSION" ]; then
         PS1='[\u@\H \W]\n> '
       fi
+
+  - path: /etc/yum.repos.d/kubernetes.repo
+    content: |
+      [kubernetes]
+      name=Kubernetes
+      baseurl=https://pkgs.k8s.io/core:/stable:/${k8s_version}/rpm/
+      enabled=1
+      gpgcheck=1
+      gpgkey=https://pkgs.k8s.io/core:/stable:/${k8s_version}/rpm/repodata/repomd.xml.key
+
+runcmd:
+  - dnf install -y containerd
+  - mkdir -p /etc/containerd
+  - containerd config default > /etc/containerd/config.toml
+  - sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+  - sed -i 's/enable_selinux = false/enable_selinux = true/' /etc/containerd/config.toml
+  - systemctl enable --now containerd
+
+  - dnf install -y kubelet kubeadm kubectl
