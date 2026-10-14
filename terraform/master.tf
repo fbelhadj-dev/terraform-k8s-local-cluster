@@ -1,7 +1,7 @@
 resource "libvirt_volume" "master" {
   name          = "${var.cluster_name}-master.qcow2"
   pool          = libvirt_pool.default.name
-  capacity      = 10
+  capacity      = var.master_capacity_gb
   capacity_unit = "GiB"
 
   backing_store = {
@@ -26,13 +26,27 @@ resource "libvirt_cloudinit_disk" "master" {
     local-hostname = "master"
   })
 
-  user_data = templatefile("../cloud-init/master.yaml", {
-    hostname             = "master"
-    domain               = local.cluster_domain
-    master_root_password = var.master_root_password
-    ssh_user             = var.ssh_master_user
-    ssh_public_key       = file(pathexpand(var.ssh_public_key_path))
-    k8s_version          = var.k8s_version
+  user_data = templatefile("../cloud-init/master/cloud-init.yaml", {
+    hostname       = "master"
+    domain         = local.cluster_domain
+    root_password  = var.master_root_password
+    ssh_user       = var.ssh_master_user
+    ssh_public_key = file(pathexpand(var.ssh_public_key_path))
+
+    # files
+    profile           = filebase64("../cloud-init/master/files/profile.sh")
+    k8s_repo          = filebase64("../cloud-init/master/files/k8s.repo")
+    containerd_config = filebase64("../cloud-init/master/files/containerd-config.toml")
+    sysctl_k8s        = filebase64("../cloud-init/master/files/sysctl-k8s.conf")
+    crictl            = filebase64("../cloud-init/master/files/crictl.yaml")
+    kubeadm_config = base64encode(templatefile("../cloud-init/master/files/kubeadm-config.yaml",
+      {
+        hostname    = "master"
+        domain      = local.cluster_domain
+        ip          = local.master_ip
+        k8s_version = var.k8s_version
+        pod_cidr    = var.pod_network_cidr
+    }))
   })
 }
 
@@ -57,9 +71,9 @@ resource "libvirt_domain" "master" {
   name = "${var.cluster_name}-master"
   type = "kvm"
 
-  memory      = 2048
-  memory_unit = "MiB"
-  vcpu        = 2
+  memory      = var.master_memory_gb
+  memory_unit = "GiB"
+  vcpu        = var.master_vcpu
   running     = true
   autostart   = true
 

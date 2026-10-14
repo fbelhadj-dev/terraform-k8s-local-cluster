@@ -25,6 +25,13 @@ resource "libvirt_network" "k8s" {
           start = cidrhost(var.network_cidr, 10)
           end   = cidrhost(var.network_cidr, 20)
         }]
+
+        hosts = [
+          {
+            mac = var.master_mac
+            ip  = local.master_ip
+          }
+        ]
       }
     }
   ]

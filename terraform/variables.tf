@@ -59,9 +59,33 @@ variable "master_root_password" {
   sensitive   = true
 }
 
+variable "master_capacity_gb" {
+  description = "Total VM storage for master node"
+  type        = number
+  default     = 20
+}
+
+variable "master_memory_gb" {
+  description = "Total VM RAM for master node"
+  type        = number
+  default     = 8
+}
+
+variable "master_vcpu" {
+  description = "Total VM virtual cpus for master node"
+  type        = number
+  default     = 2
+}
+
 # k8s
 
 variable "k8s_version" {
   type    = string
   default = "v1.37"
+}
+
+variable "pod_network_cidr" {
+  description = "CIDR for the Kubernetes pod network"
+  type        = string
+  default     = "10.244.0.0/16"
 }
