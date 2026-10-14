@@ -65,3 +65,9 @@ variable "k8s_version" {
   type    = string
   default = "v1.37"
 }
+
+variable "pod_network_cidr" {
+  description = "CIDR for the Kubernetes pod network (Calico default)"
+  type        = string
+  default     = "10.244.0.0/16"
+}

@@ -26,13 +26,27 @@ resource "libvirt_cloudinit_disk" "master" {
     local-hostname = "master"
   })
 
-  user_data = templatefile("../cloud-init/master.yaml", {
-    hostname             = "master"
-    domain               = local.cluster_domain
-    master_root_password = var.master_root_password
-    ssh_user             = var.ssh_master_user
-    ssh_public_key       = file(pathexpand(var.ssh_public_key_path))
-    k8s_version          = var.k8s_version
+  user_data = templatefile("../cloud-init/master/cloud-init.yaml", {
+    hostname       = "master"
+    domain         = local.cluster_domain
+    root_password  = var.master_root_password
+    ssh_user       = var.ssh_master_user
+    ssh_public_key = file(pathexpand(var.ssh_public_key_path))
+
+    # files
+    profile           = filebase64("../cloud-init/master/files/profile.sh")
+    k8s_repo          = filebase64("../cloud-init/master/files/k8s.repo")
+    containerd_config = filebase64("../cloud-init/master/files/containerd-config.toml")
+    sysctl_k8s        = filebase64("../cloud-init/master/files/sysctl-k8s.conf")
+    crictl            = filebase64("../cloud-init/master/files/crictl.yaml")
+    kubeadm_config = base64encode(templatefile("../cloud-init/master/files/kubeadm-config.yaml",
+      {
+        hostname    = "master"
+        domain      = local.cluster_domain
+        ip          = local.master_ip
+        k8s_version = var.k8s_version
+        pod_cidr    = var.pod_network_cidr
+    }))
   })
 }
 
