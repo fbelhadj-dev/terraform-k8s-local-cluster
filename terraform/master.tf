@@ -32,6 +32,7 @@ resource "libvirt_cloudinit_disk" "master" {
     root_password  = var.master_root_password
     ssh_user       = var.ssh_master_user
     ssh_public_key = file(pathexpand(var.ssh_public_key_path))
+    cilium_version = var.cilium_version
 
     # files
     profile           = filebase64("../cloud-init/master/files/profile.sh")
