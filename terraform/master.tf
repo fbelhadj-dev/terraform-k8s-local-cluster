@@ -29,18 +29,20 @@ resource "libvirt_cloudinit_disk" "master" {
   user_data = templatefile("../cloud-init/master/cloud-init.yaml", {
     hostname       = "master"
     domain         = local.cluster_domain
-    root_password  = var.master_root_password
+    root_password  = var.root_password
     ssh_user       = var.ssh_master_user
     ssh_public_key = file(pathexpand(var.ssh_public_key_path))
     cilium_version = var.cilium_version
 
     # files
-    profile           = filebase64("../cloud-init/master/files/profile.sh")
-    k8s_repo          = filebase64("../cloud-init/master/files/k8s.repo")
-    containerd_config = filebase64("../cloud-init/master/files/containerd-config.toml")
-    sysctl_k8s        = filebase64("../cloud-init/master/files/sysctl-k8s.conf")
-    crictl            = filebase64("../cloud-init/master/files/crictl.yaml")
-    kubeadm_config = base64encode(templatefile("../cloud-init/master/files/kubeadm-config.yaml",
+    profile           = filebase64("../files/profile.sh")
+    containerd_config = filebase64("../files/containerd-config.toml")
+    sysctl_k8s        = filebase64("../files/sysctl-k8s.conf")
+    crictl            = filebase64("../files/crictl.yaml")
+    k8s_repo = base64encode(templatefile("../files/k8s.repo", {
+      k8s_version = var.k8s_version
+    }))
+    kubeadm_config = base64encode(templatefile("../files/kubeadm-config.yaml",
       {
         hostname    = "master"
         domain      = local.cluster_domain

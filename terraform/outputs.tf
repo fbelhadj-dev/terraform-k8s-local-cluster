@@ -4,7 +4,14 @@ output "master_interfaces" {
 }
 
 output "rendered_k8s_repo" {
-  value = templatefile("../cloud-init/master/files/k8s.repo",
+  value = templatefile("../files/k8s.repo",
+    {
+      k8s_version = var.k8s_version
+  })
+}
+
+output "rendered_kubeadm_config" {
+  value = templatefile("../files/kubeadm-config.yaml",
     {
       hostname    = "master"
       domain      = local.cluster_domain

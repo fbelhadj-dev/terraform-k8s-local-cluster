@@ -46,14 +46,14 @@ variable "ssh_public_key_path" {
   default     = "~/.ssh/k8s.pub"
 }
 
-# Master node
+# Nodes
 
 variable "master_mac" {
   type    = string
   default = "52:54:00:00:00:0a"
 }
 
-variable "master_root_password" {
+variable "root_password" {
   description = "Root password for the master node VM"
   type        = string
   sensitive   = true
