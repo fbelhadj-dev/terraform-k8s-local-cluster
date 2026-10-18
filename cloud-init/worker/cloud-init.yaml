@@ -1,0 +1,69 @@
+#cloud-config
+hostname: ${hostname}
+fqdn: ${hostname}.${domain}
+
+chpasswd:
+  expire: False
+  users:
+    - name: root
+      password: ${root_password}
+      type: text
+ssh_pwauth: false
+
+users:
+  - name: ${ssh_user}
+    groups: [wheel]
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ${ssh_public_key}
+    sudo: ALL=(ALL) NOPASSWD:ALL
+
+write_files:
+  - path: /etc/profile.d/profile.sh
+    owner: root:root
+    permissions: "0644"
+    encoding: b64
+    content: ${profile}
+
+  - path: /etc/yum.repos.d/kubernetes.repo
+    owner: root:root
+    permissions: "0644"
+    encoding: b64
+    content: ${k8s_repo}
+
+  - path: /etc/containerd/config.toml
+    owner: root:root
+    permissions: "0644"
+    encoding: b64
+    content: ${containerd_config}
+
+  - path: /etc/sysctl.d/k8s.conf
+    owner: root:root
+    permissions: "0600"
+    encoding: b64
+    content: ${sysctl_k8s}
+
+  - path: /etc/crictl.yaml
+    owner: root:root
+    permissions: "0644"
+    encoding: b64
+    content: ${crictl}
+
+runcmd:
+  - sysctl --system
+
+  # selinux set to permissive, this should be addressed further
+  - setenforce 0 || true
+  - sed -i 's/^SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
+
+  - dnf install -y containerd
+  - mkdir -p /etc/containerd
+  - systemctl enable --now containerd
+
+  - groupadd -f containerd
+  - usermod -aG containerd ${ssh_user}
+  - chown root:containerd /run/containerd/containerd.sock
+  - chmod 660 /run/containerd/containerd.sock
+
+  - dnf install -y kubelet kubeadm kubectl --setopt=disable_excludes=kubernetes
+  - systemctl enable --now kubelet

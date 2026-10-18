@@ -77,6 +77,29 @@ variable "master_vcpu" {
   default     = 2
 }
 
+variable "worker_macs" {
+  description = "List of workers mac addresses"
+  type        = list(string)
+}
+
+variable "worker_capacity_gb" {
+  description = "Total VM storage for worker node"
+  type        = number
+  default     = 10
+}
+
+variable "worker_memory_gb" {
+  description = "Total VM RAM for worker node"
+  type        = number
+  default     = 4
+}
+
+variable "worker_vcpu" {
+  description = "Total VM virtual cpus for worker node"
+  type        = number
+  default     = 2
+}
+
 # k8s
 
 variable "k8s_version" {
@@ -95,3 +118,4 @@ variable "cilium_version" {
   type    = string
   default = "1.20.3"
 }
+

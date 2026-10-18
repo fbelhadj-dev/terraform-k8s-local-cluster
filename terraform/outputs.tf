@@ -3,6 +3,14 @@ output "master_interfaces" {
   value       = data.libvirt_domain_interface_addresses.master.interfaces
 }
 
+output "worker_interfaces" {
+  description = "Worker VM network interfaces and IP addresses"
+  value = {
+    for worker, interface in data.libvirt_domain_interface_addresses.worker :
+    worker => interface.interfaces
+  }
+}
+
 output "rendered_k8s_repo" {
   value = templatefile("../files/k8s.repo",
     {
