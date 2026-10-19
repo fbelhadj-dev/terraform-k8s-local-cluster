@@ -1,0 +1,44 @@
+---
+- name: Generate short-lived join command for workers
+  hosts: control-plane
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Generate command
+      ansible.builtin.command:
+        cmd: kubeadm token create --ttl 1h --print-join-command
+      register: kubeadm_join
+      run_once: true
+      no_log: true
+
+    - name: Store command
+      ansible.builtin.set_fact:
+        kubeadm_join_cmd: "{{  kubeadm_join.stdout  }}"
+      run_once: true
+      no_log: true
+
+- name: Join workers to Kubernetes cluster
+  hosts: workers
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Check whether worker has already joined
+      ansible.builtin.stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: kubelet_conf
+
+    - name: Join worker to the cluster
+      ansible.builtin.command:
+        cmd: "{{ hostvars[groups['control_plane'][0]]['kubeadm_join_cmd'] }}"
+      become: true
+      no_log: true
+      when: not kubelet_conf.stat.exists
+
+    - name: Wait for kubelet configuration
+      ansible.builtin.wait_for:
+        path: /etc/kubernetes/kubelet.conf
+        state: present
+        timeout: 120
+      become: true
+      when: not kubelet_conf.stat.exists
