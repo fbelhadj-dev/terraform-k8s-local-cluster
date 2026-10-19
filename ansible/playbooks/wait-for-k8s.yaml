@@ -1,0 +1,42 @@
+---
+- name: Wait for Kubernetes bootstrap
+  hosts: control_plane
+  gather_facts: false
+
+  tasks:
+    - name: Wait for cloud-init
+      ansible.builtin.command:
+        cmd: cloud-init status --wait
+      changed_when: false
+
+    - name: Copy Kubernetes CA certificate
+      ansible.builtin.fetch:
+        src: /etc/kubernetes/pki/ca.crt
+        dest: /tmp/k8s.crt
+        flat: true
+      become: true
+
+    - name: Install Kubernetes CA certificate locally
+      ansible.builtin.command:
+        cmd: install -m 644 /tmp/k8s.crt /usr/local/share/ca-certificates
+      delegate_to: localhost
+      become: true
+
+    - name: Update local CA certificates
+      ansible.builtin.command:
+        cmd: update-ca-certificates
+      become: true
+      delegate_to: localhost
+
+    - name: Verify Kubernetes API health
+      ansible.builtin.uri:
+        url: https://{{ hostvars['control-plane']['ansible_host'] }}:6443/readyz
+        method: GET
+        validate_certs: true
+        status_code: 200
+      register: api_health
+      retries: 30
+      delay: 5
+      until: api_health.status == 200
+      delegate_to: localhost
+      become: false
