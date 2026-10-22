@@ -1,0 +1,41 @@
+- name: Install cluster infrastructure
+  hosts: control-plane
+  gather_facts: false
+  tasks:
+    - name: Clone Rancher local-path-provisioner repository
+      ansible.builtin.git:
+        repo: https://github.com/rancher/local-path-provisioner.git
+        depth: 1
+        dest: /tmp/local-path-provisioner
+        update: true
+
+    - name: Install Rancher local-path-provisioner
+      kubernetes.core.helm:
+        name: local-path-provisioner
+        chart_ref: /tmp/local-path-provisioner/deploy/chart/local-path-provisioner
+        release_namespace: local-path-storage
+        create_namespace: true
+        release_state: present
+        wait: true
+
+    - name: Install the Kubernetes Gateway API CRDs for Traefik
+      ansible.builtin.command:
+        cmd: kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.3/standard-install.yaml
+
+    - name: Install Traefik
+      kubernetes.core.helm:
+        name: traefik
+        chart_ref: oci://ghcr.io/traefik/helm/traefik
+        release_namespace: traefik
+        create_namespace: true
+        state: present
+        values:
+          providers:
+            kubernetesGateway:
+              enabled: true
+          gateway:
+            listeners:
+              web:
+                namespacePolicy:
+                  from: All
+      no_log: true
