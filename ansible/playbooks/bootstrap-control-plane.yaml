@@ -1,0 +1,11 @@
+- name: Bootstrap control plane
+  hosts: control-plane
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Install required packages
+      ansible.builtin.dnf:
+        name:
+          - helm
+          - git
+        state: present
