@@ -46,6 +46,11 @@ variable "ssh_public_key_path" {
   default     = "~/.ssh/k8s.pub"
 }
 
+variable "ssh_private_key_path" {
+  type = string
+  default = "~/.ssh/k8s"
+}
+
 # Nodes
 
 variable "master_mac" {
