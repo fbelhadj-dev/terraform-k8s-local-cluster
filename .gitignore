@@ -1,2 +1,4 @@
 .env*
 !.env.example
+
+/kubernetes/metallb-system/ipaddress-pool.yaml

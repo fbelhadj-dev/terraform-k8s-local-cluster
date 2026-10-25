@@ -14,3 +14,10 @@ resource "local_file" "ansible_vars" {
   filename = "../ansible/inventory/group_vars/all.yaml"
 }
 
+resource "local_file" "metallb_ipaddress" {
+  content = templatefile("../files/kubernetes/metallb-system/ipaddress-pool.yaml", {
+    ip = cidrhost(var.network_cidr, 100)
+  })
+  filename = "../kubernetes/metallb-system/ipaddress-pool.yaml"
+}
+
