@@ -1,0 +1,30 @@
+- name: Deploy applications
+  hosts: control-plane
+  gather_facts: false
+  tasks:
+    - name: Install forgejo
+      kubernetes.core.helm:
+        name: forgejo
+        chart_ref: oci://code.forgejo.org/forgejo-helm/forgejo
+        release_namespace: scm
+        create_namespace: true
+        state: present
+        values:
+          persistence:
+            enabled: true
+            storageClass: local-path
+          gitea:
+            config:
+              indexer:
+                REPO_INDEXER_ENABLED: true
+            admin:
+              username: "{{ lookup('ansible.builtin.env', 'GITEA_USERNAME') }}"
+              password: "{{ lookup('ansible.builtin.env', 'GITEA_PASSWORD') }}"
+          ingress:
+            enabled: true
+            hosts:
+              - host: "forgejo.{{ domain }}"
+                paths:
+                  - path: /
+                    pathType: Prefix
+      no_log: true

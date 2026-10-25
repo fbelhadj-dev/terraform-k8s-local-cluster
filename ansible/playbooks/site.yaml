@@ -2,3 +2,4 @@
 - import_playbook: join-workers.yaml
 - import_playbook: bootstrap-control-plane.yaml
 - import_playbook: install-cluster-infra.yaml
+- import_playbook: deploy-applications.yaml
