@@ -35,14 +35,14 @@ resource "libvirt_cloudinit_disk" "master" {
     cilium_version = var.cilium_version
 
     # files
-    profile           = filebase64("../files/profile.sh")
-    containerd_config = filebase64("../files/containerd-config.toml")
-    sysctl_k8s        = filebase64("../files/sysctl-k8s.conf")
-    crictl            = filebase64("../files/crictl.yaml")
-    k8s_repo = base64encode(templatefile("../files/k8s.repo", {
+    profile           = filebase64("../files/cloud-init/profile.sh")
+    containerd_config = filebase64("../files/cloud-init/containerd-config.toml")
+    sysctl_k8s        = filebase64("../files/cloud-init/sysctl-k8s.conf")
+    crictl            = filebase64("../files/cloud-init/crictl.yaml")
+    k8s_repo = base64encode(templatefile("../files/cloud-init/k8s.repo", {
       k8s_version = var.k8s_version
     }))
-    kubeadm_config = base64encode(templatefile("../files/kubeadm-config.yaml",
+    kubeadm_config = base64encode(templatefile("../files/cloud-init/kubeadm-config.yaml",
       {
         hostname    = "master"
         domain      = local.cluster_domain

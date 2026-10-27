@@ -38,11 +38,11 @@ resource "libvirt_cloudinit_disk" "worker" {
     ssh_public_key = file(pathexpand(var.ssh_public_key_path))
 
     # files
-    profile           = filebase64("../files/profile.sh")
-    k8s_repo          = filebase64("../files/k8s.repo")
-    containerd_config = filebase64("../files/containerd-config.toml")
-    sysctl_k8s        = filebase64("../files/sysctl-k8s.conf")
-    crictl            = filebase64("../files/crictl.yaml")
+    profile           = filebase64("../files/cloud-init/profile.sh")
+    k8s_repo          = filebase64("../files/cloud-init/k8s.repo")
+    containerd_config = filebase64("../files/cloud-init/containerd-config.toml")
+    sysctl_k8s        = filebase64("../files/cloud-init/sysctl-k8s.conf")
+    crictl            = filebase64("../files/cloud-init/crictl.yaml")
   })
 }
 

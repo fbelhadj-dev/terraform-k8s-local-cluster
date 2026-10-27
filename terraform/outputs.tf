@@ -12,14 +12,14 @@ output "worker_interfaces" {
 }
 
 output "rendered_k8s_repo" {
-  value = templatefile("../files/k8s.repo",
+  value = templatefile("../files/cloud-init/k8s.repo",
     {
       k8s_version = var.k8s_version
   })
 }
 
 output "rendered_kubeadm_config" {
-  value = templatefile("../files/kubeadm-config.yaml",
+  value = templatefile("../files/cloud-init/kubeadm-config.yaml",
     {
       hostname    = "master"
       domain      = local.cluster_domain
