@@ -2,3 +2,4 @@
 !.env.example
 
 /kubernetes/metallb-system/ipaddress-pool.yaml
+/kubernetes/scm/forgejo/http-route.yaml

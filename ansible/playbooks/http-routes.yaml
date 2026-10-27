@@ -1,0 +1,16 @@
+---
+- name: Setup routes for Traefik to expose applications
+  hosts: control-plane
+  gather_facts: false
+  vars:
+    repo_root: "{{ playbook_dir }}/../.."
+  tasks:
+    - name: Copy Forgejo HTTPRoute manifest to control plane
+      ansible.builtin.copy:
+        src: "{{ repo_root }}/kubernetes/scm/forgejo/http-route.yaml"
+        dest: /tmp/forgejo-http-route.yaml
+        mode: "0644"
+
+    - name: Apply Forgejo HTTPRoute manifest
+      ansible.builtin.command:
+        cmd: "kubectl apply -f /tmp/forgejo-http-route.yaml"

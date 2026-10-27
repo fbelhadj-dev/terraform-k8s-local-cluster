@@ -3,3 +3,4 @@
 - import_playbook: bootstrap-control-plane.yaml
 - import_playbook: install-cluster-infra.yaml
 - import_playbook: deploy-applications.yaml
+- import_playbook: http-routes.yaml

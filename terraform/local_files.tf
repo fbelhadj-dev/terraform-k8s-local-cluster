@@ -9,7 +9,7 @@ resource "local_file" "ansible_inventory" {
 
 resource "local_file" "ansible_vars" {
   content = templatefile("../files/ansible/group_vars_all.yaml", {
-    domain = local.cluster_domain
+    domain = "apps.${local.cluster_domain}"
   })
   filename = "../ansible/inventory/group_vars/all.yaml"
 }
@@ -21,3 +21,9 @@ resource "local_file" "metallb_ipaddress" {
   filename = "../kubernetes/metallb-system/ipaddress-pool.yaml"
 }
 
+resource "local_file" "forgejo_http_route" {
+  content = templatefile("../files/kubernetes/scm/forgejo/http-route.yaml", {
+    domain = local.cluster_domain
+  })
+  filename = "../kubernetes/scm/forgejo/http-route.yaml"
+}
