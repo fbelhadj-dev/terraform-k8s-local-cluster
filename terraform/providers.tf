@@ -3,6 +3,9 @@ terraform {
     libvirt = {
       source = "dmacvicar/libvirt"
     }
+    tls = {
+      source = "hashicorp/tls"
+    }
   }
 }
 

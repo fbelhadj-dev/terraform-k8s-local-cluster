@@ -1,3 +1,7 @@
+resource "tls_private_key" "master" {
+  algorithm = "ED25519"
+}
+
 resource "libvirt_volume" "master" {
   name          = "${var.cluster_name}-master.qcow2"
   pool          = libvirt_pool.default.name
@@ -31,7 +35,7 @@ resource "libvirt_cloudinit_disk" "master" {
     domain         = local.cluster_domain
     root_password  = var.root_password
     ssh_user       = var.ssh_master_user
-    ssh_public_key = file(pathexpand(var.ssh_public_key_path))
+    ssh_public_key = tls_private_key.master.public_key_openssh
     cilium_version = var.cilium_version
 
     # files

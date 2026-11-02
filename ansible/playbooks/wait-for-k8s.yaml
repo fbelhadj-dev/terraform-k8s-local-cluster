@@ -4,6 +4,20 @@
   gather_facts: false
 
   tasks:
+    - name: Wait for control-plane SSH
+      ansible.builtin.wait_for:
+        host: "{{ ansible_host }}"
+        port: 22
+        state: started
+        timeout: 120
+      delegate_to: localhost
+
+    - name: Remove SSH known_hosts to avoid stale host keys
+      ansible.builtin.file:
+        path: "{{ lookup('env', 'HOME') }}/.ssh/known_hosts"
+        state: absent
+      delegate_to: localhost
+
     - name: Wait for cloud-init
       ansible.builtin.command:
         cmd: cloud-init status --wait

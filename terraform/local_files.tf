@@ -1,8 +1,34 @@
+resource "local_file" "master_ssh_public_key" {
+  content         = tls_private_key.master.public_key_openssh
+  filename        = "${local.ssh_key_base_path}/master.pub"
+  file_permission = "0600"
+}
+
+resource "local_file" "master_ssh_private_key" {
+  content         = tls_private_key.master.private_key_openssh
+  filename        = "${local.ssh_key_base_path}/master"
+  file_permission = "0600"
+}
+
+resource "local_file" "worker_ssh_public_key" {
+  for_each        = local.workers
+  content         = tls_private_key.worker[each.key].public_key_openssh
+  filename        = each.value.ssh_public_key_path
+  file_permission = "0600"
+}
+
+resource "local_file" "worker_ssh_private_key" {
+  for_each        = local.workers
+  content         = tls_private_key.worker[each.key].private_key_openssh
+  filename        = each.value.ssh_private_key_path
+  file_permission = "0600"
+}
+
 resource "local_file" "ansible_inventory" {
   content = templatefile("../files/ansible/inventory.ini", {
     domain               = local.cluster_domain
     workers              = keys(local.workers)
-    ssh_private_key_path = var.ssh_private_key_path
+    ssh_private_key_path = local.ssh_key_base_path
   })
   filename = "../ansible/inventory/hosts.ini"
 }

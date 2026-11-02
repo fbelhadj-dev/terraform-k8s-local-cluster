@@ -40,14 +40,8 @@ variable "ssh_master_user" {
   default     = "master"
 }
 
-variable "ssh_public_key_path" {
-  description = "Path to SSH public key for VM access"
-  type        = string
-  default     = "~/.ssh/k8s.pub"
-}
-
-variable "ssh_private_key_path" {
-  type = string
+variable "ssh_key_base_path" {
+  type    = string
   default = "~/.ssh/k8s"
 }
 

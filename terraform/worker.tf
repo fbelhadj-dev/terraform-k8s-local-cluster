@@ -1,3 +1,8 @@
+resource "tls_private_key" "worker" {
+  for_each  = local.workers
+  algorithm = "ED25519"
+}
+
 resource "libvirt_volume" "worker" {
   for_each = local.workers
 
@@ -35,7 +40,7 @@ resource "libvirt_cloudinit_disk" "worker" {
     domain         = local.cluster_domain
     root_password  = var.root_password
     ssh_user       = "worker"
-    ssh_public_key = file(pathexpand(var.ssh_public_key_path))
+    ssh_public_key = tls_private_key.worker[each.key].public_key_openssh
 
     # files
     profile           = filebase64("../files/cloud-init/profile.sh")
